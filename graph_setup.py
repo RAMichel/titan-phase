@@ -99,9 +99,7 @@ ADD_VERTEXES = """
     def sale7 = g.addVertexWithLabel('sale')
     def sale8 = g.addVertexWithLabel('sale')
     g.commit()
-    """ \
-    # add all edges
-    + """
+
     person1.addEdge('contact', contact_info1)
     person2.addEdge('contact', contact_info2)
     person3.addEdge('contact', contact_info3)
