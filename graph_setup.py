@@ -16,17 +16,30 @@ VERTEX_LABEL_BUILD = """
     mgmt.commit()
     """
 
+EDGE_LABEL_BUILD = """
+    mgmt = g.getManagementSystem()
+    cc_info = mgmt.makeEdgeLabel('cc_info').multiplicity(MULTI).make()
+    contact = mgmt.makeEdgeLabel('contact').multiplicity(MULTI).make()
+    located = mgmt.makeEdgeLabel('located').multiplicity(MULTI).make()
+    purchased = mgmt.makeEdgeLabel('purchased').multiplicity(MULTI).make()
+    user = mgmt.makeEdgeLabel('user').multiplicity(MULTI).make()
+    mgmt.commit()
+    """
+
 PROPERTY_BUILD = """
     mgmt = g.getManagementSystem()
     first_name = mgmt.makePropertyKey('first_name').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     last_name = mgmt.makePropertyKey('last_name').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     full_name = mgmt.makePropertyKey('full_name').dataType(String.class).cardinality(Cardinality.SINGLE).make()
+    phone_number = mgmt.makePropertyKey('phone_number').dataType(String.class).cardinality(Cardinality.SINGLE).make()
+    email = mgmt.makePropertyKey('email').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     cc_first_six = mgmt.makePropertyKey('cc_first_six').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     cc_last_four = mgmt.makePropertyKey('cc_last_four').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     zipcode = mgmt.makePropertyKey('zipcode').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     address1 = mgmt.makePropertyKey('address1').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     address2 = mgmt.makePropertyKey('address2').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     city = mgmt.makePropertyKey('city').dataType(String.class).cardinality(Cardinality.SINGLE).make()
+    country = mgmt.makePropertyKey('country').dataType(String.class).cardinality(Cardinality.SINGLE).make()
     mgmt.commit()
     """
 
@@ -39,6 +52,17 @@ ADD_VERTEXES = """
     ElementHelper.setProperties(person2, 'first_name', 'Jane', 'last_name', 'Doe', 'full_name', 'Jane K Doe')
     ElementHelper.setProperties(person3, 'first_name', 'Seymore', 'last_name', 'Butts', 'full_name', 'Seymore J Butts')
     ElementHelper.setProperties(person4, 'first_name', 'Roger', 'last_name', 'Rabbit', 'full_name', 'Roger T Rabbit')
+    g.commit()
+    def contact_info1 = g.addVertexWithLabel('contact_info')
+    def contact_info2 = g.addVertexWithLabel('contact_info')
+    def contact_info3 = g.addVertexWithLabel('contact_info')
+    def contact_info4 = g.addVertexWithLabel('contact_info')
+    def contact_info5 = g.addVertexWithLabel('contact_info')
+    ElementHelper.setProperties(contact_info1, 'phone_number', '(817) 584-1294', 'email', 'jdoe@test.com')
+    ElementHelper.setProperties(contact_info2, 'phone_number', '838-174-4462', 'email', 'jane.doe@test.com')
+    ElementHelper.setProperties(contact_info3, 'phone_number', '919.827.0192', 'email', 'c77more@test.com')
+    ElementHelper.setProperties(contact_info4, 'phone_number', '7817818888', 'email', 'rrab01@test.com')
+    ElementHelper.setProperties(contact_info5, 'phone_number', '+118888888888', 'email', 'another@test.com')
     g.commit()
     def credit_card1 = g.addVertexWithLabel('credit_card')
     def credit_card2 = g.addVertexWithLabel('credit_card')
@@ -55,11 +79,18 @@ ADD_VERTEXES = """
     ElementHelper.setProperties(credit_card6, 'cc_first_four', '1221', 'cc_last_six', '029847')
     ElementHelper.setProperties(credit_card7, 'cc_first_four', '0529', 'cc_last_six', '123097')
     g.commit()
-    def contact_info1 = g.addVertexWithLabel('contact_info')
-    def contact_info2 = g.addVertexWithLabel('contact_info')
-    def contact_info3 = g.addVertexWithLabel('contact_info')
-    def contact_info4 = g.addVertexWithLabel('contact_info')
-    def contact_info5 = g.addVertexWithLabel('contact_info')
+    def location1 = g.addVertexWithLabel('location')
+    def location2 = g.addVertexWithLabel('location')
+    def location3 = g.addVertexWithLabel('location')
+    def location4 = g.addVertexWithLabel('location')
+    def location5 = g.addVertexWithLabel('location')
+    ElementHelper.setProperties(location1, 'address1', '123 Fake Street', 'address2', '', 'zipcode', '98271', 'city', 'Whuddup', 'country', 'USA')
+    ElementHelper.setProperties(location2, 'address1', '7717 77th Avenue', 'address2', 'Apt 7', 'zipcode', '27177', 'city', 'NYC', 'country', 'USA')
+    ElementHelper.setProperties(location3, 'address1', '2240 Manitoba Pass', 'address2', '', 'zipcode', 'MA48G8', 'city', 'Toronto', 'country', 'CA')
+    ElementHelper.setProperties(location4, 'address1', '98112 Bunk Avenue', 'address2', '#8', 'zipcode', '39444', 'city', 'Somewhere', 'country', 'NA')
+    ElementHelper.setProperties(location5, 'address1', '912 McCullough Place', 'address2', '', 'zipcode', '98271', 'city', 'Another City', 'country', 'USA')
+    g.commit()
+
     """
 
 DESTROY_ACTION = """
@@ -120,12 +151,15 @@ def main(argv):
             sys.exit(2)
         elif action_to_do == 'build':
             with conn.transaction():
-                print conn.execute('g.V()')
+                print conn.execute(PROPERTY_BUILD)
+                print conn.execute(VERTEX_LABEL_BUILD)
+                print conn.execute(EDGE_LABEL_BUILD)
             print 'Building the specific Labels and Keys for the system.'
         elif action_to_do == 'insert_all':
             with conn.transaction():
                 print conn.execute(ADD_VERTEXES)
         elif action_to_do == 'test_query':
+            # get all people: g.query().has('label', 'person').vertices()
             print 'Testing a query to make sure things work properly.'
             with conn.transaction():
                 print conn.execute('g.V().map')
